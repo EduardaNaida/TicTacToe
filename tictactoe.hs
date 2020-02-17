@@ -27,7 +27,7 @@ playerInput = do
     
 
 
-printWorld = do 
+printWorld = dol 
     putStrLn world
 
 
