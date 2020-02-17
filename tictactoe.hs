@@ -1,5 +1,7 @@
 import Data.Char
 
+--jag älskar agnes
+
 world = concat (replicate 3 row)
 row =  "\n|" ++ slot 1 ++ "|" ++ slot 2 ++ "|" ++ slot 3 ++ "|\n"
 slot n = currentBoard!!(n-1)
