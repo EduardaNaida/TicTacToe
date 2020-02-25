@@ -6,9 +6,7 @@ module TTT.Game where
     import Data.List
     
     type Point = (Int, Int)
-    
     type Board = [[Slot]]
-
     data Slot = Empty | Full Player deriving(Eq)
     data Player = X | O deriving(Eq)
 
@@ -86,9 +84,6 @@ module TTT.Game where
     genBoard int = Board replicate int (replicate int Empty)
     -}
 
-    
-
-
     makeMove :: Point -> Board -> Player -> IO Board
     makeMove point board player = do
         return (replaceBoard board point (Full player))
@@ -96,7 +91,8 @@ module TTT.Game where
 
     --coordinates (a,b) 
     --a: horizontal row 
-    --b: pos. in row (1-3)
+    --b: pos. in row
+    --numbers a and b range from 0 to 2
     replaceBoard :: Board -> Point -> Slot -> Board
     replaceBoard board point slot = replaceList board (fst point) (replaceList (board !! (fst point)) (snd point) slot)
 
