@@ -3,6 +3,7 @@ module TTT.Game where
     import Data.Char
     import System.Random
     import Text.Read
+    import Data.List
     
     type Point = (Int, Int)
     
@@ -19,7 +20,29 @@ module TTT.Game where
     instance Show Player where
         show X = "X"
         show O = "O"
+
+    verticleRow :: [Slot] -> String
+    verticleRow row = intercalate " | " $ fmap show row
+
+    horizontalRow :: String
+    horizontalRow = "----------"
+
+    {- printBoard board
+        Prints the board in form of three lists containing three slots in each list
+        Side effect: Prints the board
+    -}
+    printBoard :: Board -> IO ()
+    printBoard board = do
+    putStrLn $ verticleRow firstRow
+    putStrLn horizontalRow
+    putStrLn $ verticleRow secondRow
+    putStrLn horizontalRow
+    putStrLn $ verticleRow thirdRow
+    where firstRow  = board !! 0
+          secondRow =  board !! 1
+          thirdRow  = board !! 2
     
+
     
     --Turn
     
@@ -59,8 +82,7 @@ module TTT.Game where
     genBoard int = Board replicate int (replicate int Empty)
     -}
 
-    printBoard :: Board -> IO ()
-    printBoard = undefined
+    
 
     --coordinates (a,b) 
     --a: horizontal row 
