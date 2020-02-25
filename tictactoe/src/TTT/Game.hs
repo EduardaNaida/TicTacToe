@@ -8,7 +8,7 @@ module TTT.Game where
     
     type Board = [[Slot]]
 
-    data Slot = Empty | Full Player
+    data Slot = Empty | Full Player deriving(Eq)
     data Player = X | O deriving(Eq)
 
     instance Show Slot where
@@ -44,6 +44,10 @@ module TTT.Game where
     startingPlayerAux = do 
         a <- randomRIO (1,2)
         return a
+
+    nextPlayer :: Player -> IO Player
+    nextPlayer X = do return O
+    nextPlayer O = do return X
     
     playerInsert :: Player -> Slot
     playerInsert X = Full X 
@@ -61,6 +65,12 @@ module TTT.Game where
 
     printBoard :: Board -> IO ()
     printBoard = undefined
+
+
+    makeMove :: Point -> Board -> Player -> IO Board
+    makeMove point board player = do
+        return (replaceBoard board point (Full player))
+
 
     --coordinates (a,b) 
     --a: horizontal row 
@@ -89,31 +99,43 @@ module TTT.Game where
             Nothing    -> do
                 putStrLn "Invalid input."
                 readMove
+
+    pointValid :: Board -> Point ->  Bool
+    pointValid board point = if (fst point) > 0 && (fst point) < 4 && (snd point) > 0 && (snd point) < 4 && isEmpty board point then True else False
+
+    isEmpty :: Board -> Point -> Bool
+    isEmpty board point = if ((board !! (fst point)) !! (snd point)) == Empty then True else False
     
     {- runGame
         Starts the game with either X or O's turn
         Returns: 
     -}
-    movesLeft = 9
+    tieCount :: Int -> IO Int
+    tieCount int = do
+        return (int - 1)
 
     runGame :: IO ()
     runGame = do
         player <- startingPlayer
-        gameLoop movesLeft player initialBoard
+        gameLoop 9 player initialBoard
     
     gameLoop :: Int -> Player -> Board -> IO ()
-    gameLoop movesLeft turn board = do
+    gameLoop count player board = do
       printBoard board
+      newCount <- tieCount count
       -- kolla om oavgjort
-      putStrLn $ "What will " ++ show turn ++ " do?"
+      putStrLn $ "What will " ++ show player ++ " do?"
       point <- readMove
+      --point <- pointValid
+      newBoard <- makeMove point board player
+      --win <- checkWin point newBoard
       -- använd makeMove för nytt bräde. Om invalid, kör samma gameLoop igen
       -- om valit, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
+      newPlayer <- nextPlayer player
       putStrLn "Smart move! :)"
+      gameLoop newCount newPlayer newBoard
     
     
-    makeMove :: Point -> Board -> Player -> Maybe Board
-    makeMove point board player = undefined
     
     checkWin :: Point -> Board -> Maybe Player
     checkWin = undefined
