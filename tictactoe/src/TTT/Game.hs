@@ -6,11 +6,11 @@ module TTT.Game where
     
     type Point = (Int, Int)
     
-    newtype Board = Board [[Slot]]
+    type Board = [[Slot]]
 
     data Slot = Empty | Full Player
     data Player = X | O deriving(Eq)
-    
+
     instance Show Slot where
         show Empty = " "
         show (Full X) = "X"
@@ -25,30 +25,39 @@ module TTT.Game where
     
     --data Turn = PlayerX | PlayerO deriving(Show, Eq)
     -- ^^ behövs inte enligt Love
+
+    {-startingPlayer
+    Randomly decides which player should start the game.
+    Returns: IO X or O
+    -}
     
     startingPlayer :: IO Player
     startingPlayer = do
-        i <- yesno
+        i <- startingPlayerAux
         if (i == 1) then
             return X
         else
             return O
     
+    --ger ut antingen 1 eller 2
+    startingPlayerAux :: IO Int
+    startingPlayerAux = do 
+        a <- randomRIO (1,2)
+        return a
     
     playerInsert :: Player -> Slot
     playerInsert X = Full X 
     playerInsert O = Full O
     
     initialBoard :: Board
-    initialBoard = Board replicate 3 (replicate 3 Empty)
+    initialBoard = replicate 3 (replicate 3 Empty)
 
     {-
+    If we want to generate a board with and arbitrary number of slots:
+
     genBoard :: Int -> Board
     genBoard int = Board replicate int (replicate int Empty)
     -}
-
-    boardElem :: Board -> Point -> Slot
-    boardElem board point = undefined
 
     printBoard :: Board -> IO ()
     printBoard = undefined
@@ -56,8 +65,8 @@ module TTT.Game where
     --coordinates (a,b) 
     --a: horizontal row 
     --b: pos. in row (1-3)
-    replaceBoard :: Board -> Point -> a -> Board
-    replaceBoard (Board list) point player = Board replaceList (list !! (fst point)) (snd point) player
+    replaceBoard :: Board -> Point -> Slot -> Board
+    replaceBoard board point slot = replaceList board (fst point) (replaceList (board !! (fst point)) (snd point) slot)
 
     --använd för att uppdatera en lista med ett nytt element 'insert'
     replaceList :: [a] -> Int -> a -> [a]
@@ -85,6 +94,7 @@ module TTT.Game where
         Starts the game with either X or O's turn
         Returns: 
     -}
+    movesLeft = 9
 
     runGame :: IO ()
     runGame = do
@@ -99,14 +109,7 @@ module TTT.Game where
       point <- readMove
       -- använd makeMove för nytt bräde. Om invalid, kör samma gameLoop igen
       -- om valit, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
-      putStrLn "tja"
-    
-
-    --ger ut antingen 1 eller 2
-    yesno :: IO Int
-    yesno = do 
-        a <- randomRIO (1,2)
-        return a
+      putStrLn "Smart move! :)"
     
     
     makeMove :: Point -> Board -> Player -> Maybe Board
