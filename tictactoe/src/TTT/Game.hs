@@ -154,13 +154,14 @@ module TTT.Game where
     readMove = do
         str <- getLine
         case readMaybe str of
-            Just point -> return point
+            Just point -> return (((fst point) - 1), ((snd point) - 1))
             Nothing    -> do
-                putStrLn "Invalid input."
+                putStrLn "Invalid input. Try the format (x,y) \n Where x is the vertical row number and y is the horizontal index"
                 readMove
 
-    pointValid :: Board -> Point ->  Bool
-    pointValid board point = if (fst point) > 0 && (fst point) < 4 && (snd point) > 0 && (snd point) < 4 && isEmpty board point then True else False
+    pointValid :: Board -> Point -> IO  Bool
+    pointValid board point = if (fst point) >= 0 && (fst point) < 3 && (snd point) >= 0 && (snd point) < 3 && isEmpty board point then do return True 
+        else do return False
 
     isEmpty :: Board -> Point -> Bool
     isEmpty board point = if ((board !! (fst point)) !! (snd point)) == Empty then True else False
@@ -182,17 +183,23 @@ module TTT.Game where
     gameLoop count player board = do
       printBoard board
       newCount <- tieCount count
-      -- kolla om oavgjort
-      putStrLn $ "What will " ++ show player ++ " do?"
-      point <- readMove
-      --point <- pointValid
-      newBoard <- makeMove point board player
-      --win <- checkWin point newBoard
-      -- använd makeMove för nytt bräde. Om invalid, kör samma gameLoop igen
-      -- om valit, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
-      newPlayer <- nextPlayer player
-      putStrLn "Smart move! :)"
-      gameLoop newCount newPlayer newBoard
+      if newCount >= 0 then do
+            putStrLn $ "What will " ++ show player ++ " do?"
+            point <- readMove
+            valid <- pointValid board point
+            if valid then do
+                    newBoard <- makeMove point board player
+            --win <- checkWin point newBoard
+            -- använd makeMove för nytt bräde. Om invalid, kör samma gameLoop igen
+            -- om valit, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
+                    newPlayer <- nextPlayer player
+                    putStrLn "Smart move! :)"
+                    gameLoop newCount newPlayer newBoard
+                    else do 
+                        putStrLn "Your point is out of bounds or occupied! Try again!"
+                        gameLoop count player board
+        else do
+            putStrLn "It's a tie!"
     
     
     
