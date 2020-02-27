@@ -20,7 +20,7 @@ module TTT.Game where
     data Slot = Empty | Full Player deriving(Eq)
 
     {-The Player data type represent the player who can be an X or O. It can be compared.
-     The player can ither be X or O.
+     The player can either be X or O.
    -}
     data Player = X | O deriving(Eq)
 
@@ -33,7 +33,10 @@ module TTT.Game where
         show X = "X"
         show O = "O"
 
-
+    {-verticleRow row
+    Creates the verticle row
+    Returns: String of slots as defined in the instance for Slot
+    -}
     verticleRow :: [Slot] -> String
     verticleRow row = intercalate " | " $ fmap show row
 
@@ -41,6 +44,7 @@ module TTT.Game where
     horizontalRow = "----------"
 
     {- printBoard board
+        Prints the board
     -}
     printBoard :: Board -> IO ()
     printBoard board = do
@@ -49,9 +53,9 @@ module TTT.Game where
     putStrLn $ verticleRow secondRow
     putStrLn horizontalRow
     putStrLn $ verticleRow thirdRow
-    where firstRow  = board !! 0
-          secondRow =  board !! 1
-          thirdRow  = board !! 2
+        where firstRow  = board !! 0
+              secondRow =  board !! 1
+              thirdRow  = board !! 2
     
 
     
@@ -84,7 +88,7 @@ module TTT.Game where
         return a
 
     {-nextPlayer Player
-    Takes the players as a data type and returns them as a IO action
+    Switches turn for the players
     Returns: IO X or IO O
     Side-effect: Stores the player in a IO
     -}
@@ -101,8 +105,8 @@ module TTT.Game where
     playerInsert O = Full O
     
     {-initialBoard
-    Creates a list of 3 with three elements who are Empty inside of it. It is the base of the gameplan
-    Returns: a board
+    Creates the base gameplan
+    Returns: a board represented by list of lists
     Ex: InitialBoard == [[ , , ],[ , , ],[ , , ]]
     -}
     initialBoard :: Board
@@ -116,27 +120,33 @@ module TTT.Game where
     -}
 
     {- makeMove point board player
-    
-    Returns: 
-    Ex: 
+        Updates the board with an new one updated with the player who made a move
+    Returns: IO Board
     -}
     makeMove :: Point -> Board -> Player -> IO Board
     makeMove point board player = do
-        return (replaceBoard board point (Full player))
+        return $ replaceBoard board point (Full player)
 
 
     --coordinates (a,b) 
     --a: horizontal row 
     --b: pos. in row
     --numbers a and b range from 0 to 2
+    
+    {- replaceBoard board point slot
+        Takes the board and changes the point in the gameplan with an updated one.
+        Returns: The gamplan where the players moves are updated
+        Example: replaceBoard [[Full X],[Full O],[Full X]] (0,0) Empty == [[ ],[O],[X]]
+        replaceBoard [[Empty],[Full O],[Full X]] (0,0) (Full O)  == [[O],[O],[X]]
+    -}
     replaceBoard :: Board -> Point -> Slot -> Board
     replaceBoard board point slot = replaceList board (fst point) (replaceList (board !! (fst point)) (snd point) slot)
 
      {- replaceList list int insert
-    Used for updating a list with a new element: insert. Takes the insert and switch the place with the element int the list after
-    the int inputted.
-    Returns: 
-    Ex: replaceList [1,2,3] 2 4 == [1,2,4]
+         Used for updating a list with a new element: insert. Takes the insert and switch the place with the element in the list after
+        the Int taken as an argument.
+        Returns: A list with the insert in it
+        Example: replaceList [1,2,3] 2 4 == [1,2,4]
     -}
     replaceList :: [a] -> Int -> a -> [a]
     replaceList list int insert = x ++ insert : ys
@@ -159,9 +169,20 @@ module TTT.Game where
                 putStrLn "Invalid input. Try the format (x,y) \n Where x is the vertical row number and y is the horizontal index"
                 readMove
 
+    {- pointValid board point
+        Determents if a point is valid, which is when the first and second Int in the point is between 0 -2 and the point is empty.
+        Returns: IO True or False
+    -}
+
     pointValid :: Board -> Point -> IO  Bool
     pointValid board point = if (fst point) >= 0 && (fst point) < 3 && (snd point) >= 0 && (snd point) < 3 && isEmpty board point then do return True 
         else do return False
+
+     {- isEmpty board point
+        Checks if a point in the board is empty or not
+        Returns: True if the point is empty and false if it's not empty
+        Example: isEmpty [[Full X],[Full O],[Full X]] (0,0) == False
+    -}
 
     isEmpty :: Board -> Point -> Bool
     isEmpty board point = if ((board !! (fst point)) !! (snd point)) == Empty then True else False
@@ -174,10 +195,29 @@ module TTT.Game where
     tieCount int = do
         return (int - 1)
 
+
+    main :: IO ()
+    main = do
+        runGame
+
+    {- runGame
+        Runs the game
+        Side-effect: The game interaction 
+                Reading input from the keyboard
+                Printing output on the screen
+    -}
+
     runGame :: IO ()
     runGame = do
         player <- startingPlayer
         gameLoop 9 player initialBoard
+    
+    {- gameLoop count player board
+         
+         Pre: 
+         Returns:
+         Side-effect:
+    -}
     
     gameLoop :: Int -> Player -> Board -> IO ()
     gameLoop count player board = do
@@ -202,8 +242,9 @@ module TTT.Game where
             putStrLn "It's a tie!"
     
     
-    
-    checkWin :: Point -> Board -> Maybe Player
-    checkWin = undefined
-    
+    --checkWin :: Point -> Board -> IO (Maybe Player)
+    --checkWin point board = do
+
+
+
     -- Behöver kolla draws. Ett sätt är att bära omkring en räknare som dekrementeras med varje legalt drag; börjar på antalet spaces; oavgjort när den når 0 utan att nån har vunnit
