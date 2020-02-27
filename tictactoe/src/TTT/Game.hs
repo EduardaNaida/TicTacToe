@@ -33,27 +33,20 @@ module TTT.Game where
     -}
     printBoard :: Board -> IO ()
     printBoard board = do
-    putStrLn $ verticleRow firstRow
-    putStrLn horizontalRow
-    putStrLn $ verticleRow secondRow
-    putStrLn horizontalRow
-    putStrLn $ verticleRow thirdRow
-    where firstRow  = board !! 0
-          secondRow =  board !! 1
-          thirdRow  = board !! 2
+        putStrLn $ verticleRow firstRow
+        putStrLn horizontalRow
+        putStrLn $ verticleRow secondRow
+        putStrLn horizontalRow
+        putStrLn $ verticleRow thirdRow
+        where firstRow  = board !! 0
+              secondRow =  board !! 1
+              thirdRow  = board !! 2
     
-
-    
-    --Turn
-    
-    --data Turn = PlayerX | PlayerO deriving(Show, Eq)
-    -- ^^ behövs inte enligt Love
 
     {-startingPlayer
     Randomly decides which player should start the game.
     Returns: IO X or O
     -}
-    
     startingPlayer :: IO Player
     startingPlayer = do
         i <- startingPlayerAux
@@ -112,7 +105,6 @@ module TTT.Game where
         Returns: The input Point
         Side effect: Reads one or more lines from standard input 
     -}
-
     readMove :: IO Point
     readMove = do
         str <- getLine
