@@ -113,7 +113,7 @@ module TTT.Game where
 
     {- makeMove point board player
     Creates a Board from input Point
-    Returns: Board where Player has been inserted into the Point
+    Returns: Board where Player has been inserted into the Slot of the Point
     Example: makeMove (1,2) [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X = [[ , , ],[ , ,X],[ , , ]]
     -}
     makeMove :: Point -> Board -> Player -> IO Board
