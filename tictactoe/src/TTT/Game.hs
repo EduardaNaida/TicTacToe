@@ -6,9 +6,23 @@ module TTT.Game where
     import Data.List
     import Data.Foldable
     
+    {- The type Point represent the gameplan, where the first Int is the vertical row where 0 is the row highest up,
+     the second Int represent the horizontal row.
+     Invariant: 0 - 2
+     -}
     type Point = (Int, Int)
+     {- The type Board takes a lists of lists of the data type slots in the game
+     -}
     type Board = [[Slot]]
+    
+    {-The Slot data type represents an empty or full player in a slot in the game. Is Comparable
+     THe slot in the game can either be empty or full
+   -}
     data Slot = Empty | Full Player deriving(Eq)
+
+    {-The Player data type represent the player who can be an X or O. It can be compared.
+     The player can either be X or O.
+   -}
     data Player = X | O deriving(Eq)
 
     instance Show Slot where
@@ -20,6 +34,10 @@ module TTT.Game where
         show X = "X"
         show O = "O"
 
+    {-verticleRow row
+    Creates the verticle row
+    Returns: String of slots as defined in the instance for Slot
+    -}
     verticleRow :: [Slot] -> String
     verticleRow row = intercalate " | " $ fmap show row
 
@@ -27,8 +45,7 @@ module TTT.Game where
     horizontalRow = "----------"
 
     {- printBoard board
-        Prints the board in form of three lists containing three slots in each list
-        Side effect: Prints the board
+        Prints the board
     -}
     printBoard :: Board -> IO ()
     printBoard board = for_ board $ \row -> do
@@ -58,20 +75,37 @@ module TTT.Game where
         else
             return O
     
-    --ger ut antingen 1 eller 2
+    {-startingPlayerAux
+    Randomly decides between 1 or 2 and stores it in a Int (a)
+    Returns: IO a (Int)
+    Side-effect: stores a value in a Int
+    -}
     startingPlayerAux :: IO Int
     startingPlayerAux = do 
         a <- randomRIO (1,2)
         return a
 
+    {-nextPlayer Player
+    Switches turn for the players
+    Returns: X or O
+    -}
     nextPlayer :: Player -> Player
     nextPlayer X = O
     nextPlayer O = X
     
+    {-playerInsert Player
+    Takes a Players move and returns it as a slot in the game
+    Returns: Full x or Full O
+    -}
     playerInsert :: Player -> Slot
     playerInsert X = Full X 
     playerInsert O = Full O
     
+    {-initialBoard
+    Creates the base gameplan
+    Returns: a board represented by list of lists
+    Ex: InitialBoard == [[ , , ],[ , , ],[ , , ]]
+    -}
     initialBoard :: Board
     initialBoard = replicate 3 (replicate 3 Empty)
 
@@ -82,19 +116,35 @@ module TTT.Game where
     genBoard int = Board replicate int (replicate int Empty)
     -}
 
+    {- makeMove point board player
+        Updates the board with an new one updated with the player who made a move
+    Returns: IO Board
+    -}
     makeMove :: Point -> Board -> Player -> IO Board
     makeMove point board player = do
-        return (replaceBoard board point (Full player))
+        return $ replaceBoard board point (Full player)
 
 
     --coordinates (a,b) 
     --a: horizontal row 
     --b: pos. in row
     --numbers a and b range from 0 to 2
+    
+    {- replaceBoard board point slot
+        Takes the board and changes the point in the gameplan with an updated one.
+        Returns: The gamplan where the players moves are updated
+        Example: replaceBoard [[Full X],[Full O],[Full X]] (0,0) Empty == [[ ],[O],[X]]
+        replaceBoard [[Empty],[Full O],[Full X]] (0,0) (Full O)  == [[O],[O],[X]]
+    -}
     replaceBoard :: Board -> Point -> Slot -> Board
     replaceBoard board point slot = replaceList board (fst point) (replaceList (board !! (fst point)) (snd point) slot)
 
-    --använd för att uppdatera en lista med ett nytt element 'insert'
+     {- replaceList list int insert
+         Used for updating a list with a new element: insert. Takes the insert and switch the place with the element in the list after
+        the Int taken as an argument.
+        Returns: A list with the insert in it
+        Example: replaceList [1,2,3] 2 4 == [1,2,4]
+    -}
     replaceList :: [a] -> Int -> a -> [a]
     replaceList list int insert = x ++ insert : ys
         where (x,_:ys) = splitAt int list
@@ -119,6 +169,12 @@ module TTT.Game where
     pointValid :: Board -> Point -> Bool
     pointValid board point = (fst point) >= 0 && (fst point) < 3 && (snd point) >= 0 && (snd point) < 3 && isEmpty board point
 
+     {- isEmpty board point
+        Checks if a point in the board is empty or not
+        Returns: True if the point is empty and false if it's not empty
+        Example: isEmpty [[Full X],[Full O],[Full X]] (0,0) == False
+    -}
+
     isEmpty :: Board -> Point -> Bool
     isEmpty board point = if ((board !! (fst point)) !! (snd point)) == Empty then True else False
     
@@ -130,10 +186,29 @@ module TTT.Game where
     tieCount int = do
         return (int - 1)
 
+
+    main :: IO ()
+    main = do
+        runGame
+
+    {- runGame
+        Runs the game
+        Side-effect: The game interaction 
+                Reading input from the keyboard
+                Printing output on the screen
+    -}
+
     runGame :: IO ()
     runGame = do
         player <- startingPlayer
         gameLoop 9 player initialBoard
+    
+    {- gameLoop count player board
+         
+         Pre: 
+         Returns:
+         Side-effect:
+    -}
     
     gameLoop :: Int -> Player -> Board -> IO ()
     gameLoop count player board = do
@@ -158,8 +233,9 @@ module TTT.Game where
             putStrLn "It's a tie!"
     
     
-    
-    checkWin :: Point -> Board -> Maybe Player
-    checkWin = undefined
-    
+    --checkWin :: Point -> Board -> IO (Maybe Player)
+    --checkWin point board = do
+
+
+
     -- Behöver kolla draws. Ett sätt är att bära omkring en räknare som dekrementeras med varje legalt drag; börjar på antalet spaces; oavgjort när den når 0 utan att nån har vunnit
