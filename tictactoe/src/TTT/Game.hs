@@ -4,6 +4,7 @@ module TTT.Game where
     import System.Random
     import Text.Read
     import Data.List
+    import Data.Foldable
     
     type Point = (Int, Int)
     type Board = [[Slot]]
@@ -30,16 +31,12 @@ module TTT.Game where
         Side effect: Prints the board
     -}
     printBoard :: Board -> IO ()
-    printBoard board = do
-    putStrLn $ verticleRow firstRow
-    putStrLn horizontalRow
-    putStrLn $ verticleRow secondRow
-    putStrLn horizontalRow
-    putStrLn $ verticleRow thirdRow
-    where firstRow  = board !! 0
-          secondRow =  board !! 1
-          thirdRow  = board !! 2
-    
+    printBoard board = for_ board $ \row -> do
+        putStrLn $ verticleRow row
+        putStrLn horizontalRow
+
+        -- for_ :: [a] -> (a -> IO b) -> IO ()
+        -- for :: [a] -> (a -> IO b) -> IO [b]
 
     
     --Turn
@@ -49,7 +46,8 @@ module TTT.Game where
 
     {-startingPlayer
     Randomly decides which player should start the game.
-    Returns: IO X or O
+    Returns: X or O at random
+    Side-Effects: Updates the RNG seed
     -}
     
     startingPlayer :: IO Player
@@ -66,9 +64,9 @@ module TTT.Game where
         a <- randomRIO (1,2)
         return a
 
-    nextPlayer :: Player -> IO Player
-    nextPlayer X = do return O
-    nextPlayer O = do return X
+    nextPlayer :: Player -> Player
+    nextPlayer X = O
+    nextPlayer O = X
     
     playerInsert :: Player -> Slot
     playerInsert X = Full X 
@@ -118,9 +116,8 @@ module TTT.Game where
                 putStrLn "Invalid input. Try the format (x,y) \n Where x is the vertical row number and y is the horizontal index"
                 readMove
 
-    pointValid :: Board -> Point -> IO  Bool
-    pointValid board point = if (fst point) >= 0 && (fst point) < 3 && (snd point) >= 0 && (snd point) < 3 && isEmpty board point then do return True 
-        else do return False
+    pointValid :: Board -> Point -> Bool
+    pointValid board point = (fst point) >= 0 && (fst point) < 3 && (snd point) >= 0 && (snd point) < 3 && isEmpty board point
 
     isEmpty :: Board -> Point -> Bool
     isEmpty board point = if ((board !! (fst point)) !! (snd point)) == Empty then True else False
@@ -145,18 +142,18 @@ module TTT.Game where
       if newCount >= 0 then do
             putStrLn $ "What will " ++ show player ++ " do?"
             point <- readMove
-            valid <- pointValid board point
+            let valid = pointValid board point
             if valid then do
-                    newBoard <- makeMove point board player
+                newBoard <- makeMove point board player
             --win <- checkWin point newBoard
             -- använd makeMove för nytt bräde. Om invalid, kör samma gameLoop igen
             -- om valit, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
-                    newPlayer <- nextPlayer player
-                    putStrLn "Smart move! :)"
-                    gameLoop newCount newPlayer newBoard
-                    else do 
-                        putStrLn "Your point is out of bounds or occupied! Try again!"
-                        gameLoop count player board
+                let newPlayer = nextPlayer player
+                putStrLn "Smart move! :)"
+                gameLoop newCount newPlayer newBoard
+            else do
+                putStrLn "Your point is out of bounds or occupied! Try again!"
+                gameLoop count player board
         else do
             putStrLn "It's a tie!"
     
