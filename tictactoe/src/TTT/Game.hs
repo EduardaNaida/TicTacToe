@@ -101,7 +101,7 @@ module TTT.Game where
     {-initialBoard
     Creates the initial gameplan
     Returns: An empty board
-    Example: InitialBoard (3,3) = [[ , , ],[ , , ],[ , , ]]
+    Example: initialBoard (3,3) = [[ , , ],[ , , ],[ , , ]]
     -}
     initialBoard :: (Int,Int) -> Board
     initialBoard (m,n) = replicate m (replicate n Empty)
@@ -266,4 +266,3 @@ module TTT.Game where
     -- Behöver kolla draws. Ett sätt är att bära omkring en räknare som dekrementeras med varje legalt drag; börjar på antalet spaces; oavgjort när den når 0 utan att nån har vunnit
 
 
-    
