@@ -130,6 +130,7 @@ module TTT.Game where
     replaceBoard :: Board -> Point -> Slot -> Board
     replaceBoard board point slot = replaceList board (fst point) (replaceList (board !! (fst point)) (snd point) slot)
 
+
      {- replaceList list int insert
         Creates a new list from the old by replacing an element 
         Returns: List containing the original list with one replaced element
@@ -205,8 +206,11 @@ module TTT.Game where
     runGame :: IO ()
     runGame = do
         player <- startingPlayer
+        putStrLn $ "How many rows do you want?"
         m <- readInt
+        putStrLn $ "How many columns do you want?"
         n <- readInt
+        putStrLn $ "How many slots in a row should be required to win?"
         k <- readInt
         let count = m * n
         gameLoop count player (initialBoard (m,n)) (m,n,k)
@@ -227,7 +231,7 @@ module TTT.Game where
                 let newBoard = makeMove point board player
             --win <- checkWin point newBoard
             -- använd makeMove för nytt bräde. Om invalid, kör samma gameLoop igen
-            -- om valit, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
+            -- om valid, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
                 let newPlayer = nextPlayer player
                 if (checkWin player point newBoard k) then do
                     printBoard newBoard
