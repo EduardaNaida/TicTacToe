@@ -106,13 +106,6 @@ module TTT.Game where
     initialBoard :: (Int,Int) -> Board
     initialBoard (m,n) = replicate m (replicate n Empty)
 
-    {-
-    If we want to generate a board with and arbitrary number of slots:
-
-    genBoard :: Int -> Board
-    genBoard int = Board replicate int (replicate int Empty)
-    -}
-
     {- makeMove point board player
     Creates a Board from input Point
     Returns: Board where Player has been inserted into the Slot of the Point
