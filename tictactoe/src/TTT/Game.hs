@@ -142,12 +142,12 @@ module TTT.Game where
     
     -- För att parsea moves, använd readMaybe från Text.Read
     
+
     {- readMove
-        Checks if the standard input is a point 
-        Returns: The input Point
+        Checks if the input is a valid point, and if so reduces the numbers by one (x-1,y-1)
+        Returns: The reduced input Point 
         Side effect: Reads one or more lines from standard input 
     -}
-
     readMove :: IO Point
     readMove = do
         str <- getLine
