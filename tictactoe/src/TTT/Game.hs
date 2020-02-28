@@ -5,7 +5,7 @@ module TTT.Game where
     import Text.Read
     import Data.List
     import Data.Foldable
-    
+
     {- The type Point represent the gameplan, where the first Int is the vertical row where 0 is the row highest up,
      the second Int represent the horizontal row.
      Invariant: 0 - 2
@@ -43,8 +43,8 @@ module TTT.Game where
     {-horizontalRow
     Prints a string representing a row
     -}
-    horizontalRow :: String
-    horizontalRow = "----------"
+    horizontalRow :: String -> String
+    horizontalRow string = concat $ replicate (length string) "-"
 
     {- printBoard board
        Side effects: Prints the board
@@ -52,16 +52,18 @@ module TTT.Game where
     printBoard :: Board -> IO ()
     printBoard board = for_ board $ \row -> do
         putStrLn $ verticleRow row
-        putStrLn horizontalRow
+        putStrLn $ horizontalRow (verticleRow row)
 
         -- for_ :: [a] -> (a -> IO b) -> IO ()
         -- for :: [a] -> (a -> IO b) -> IO [b]
+
 
     {-startingPlayer
     Randomly decides a game player.
     Returns: X or O at random
     Side-Effects: Updates the RNG seed
     -}
+    
     startingPlayer :: IO Player
     startingPlayer = do
         i <- startingPlayerAux
@@ -99,10 +101,10 @@ module TTT.Game where
     {-initialBoard
     Creates the initial gameplan
     Returns: An empty board
-    Example: InitialBoard = [[ , , ],[ , , ],[ , , ]]
+    Example: InitialBoard (3,3) = [[ , , ],[ , , ],[ , , ]]
     -}
-    initialBoard :: Board
-    initialBoard = replicate 3 (replicate 3 Empty)
+    initialBoard :: (Int,Int) -> Board
+    initialBoard (m,n) = replicate m (replicate n Empty)
 
     {-
     If we want to generate a board with and arbitrary number of slots:
@@ -146,6 +148,7 @@ module TTT.Game where
         Returns: The input Point
         Side effect: Reads one or more lines from standard input 
     -}
+
     readMove :: IO Point
     readMove = do
         str <- getLine
@@ -187,17 +190,32 @@ module TTT.Game where
         Runs the game
         Side-effect: The game interaction
     -}
+
+    readInt :: IO Int
+    readInt = do
+        str <- getLine
+        case readMaybe str of
+            Just int -> return int
+            Nothing    -> do
+                putStrLn "Invalid input. Try the format (x,y) \n Where x is the vertical row number and y is the horizontal index"
+                readInt
+
     runGame :: IO ()
     runGame = do
         player <- startingPlayer
-        gameLoop 9 player initialBoard
+        m <- readInt
+        n <- readInt
+        k <- readInt
+        let count = m * n
+        gameLoop count player (initialBoard (m,n)) (m,n,k)
     
     {- gameLoop count player board
        Plays the game
        Side effect: Reads one or more lines from standard input and prints strings
     -}
-    gameLoop :: Int -> Player -> Board -> IO ()
-    gameLoop count player board = do
+    
+    gameLoop :: Int -> Player -> Board -> (Int,Int,Int) -> IO ()
+    gameLoop count player board (m,n,k) = do
       printBoard board
       newCount <- tieCount count
       if newCount >= 0 then do
@@ -210,17 +228,38 @@ module TTT.Game where
             -- använd makeMove för nytt bräde. Om invalid, kör samma gameLoop igen
             -- om valit, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
                 let newPlayer = nextPlayer player
-                putStrLn "Smart move! :)"
-                gameLoop newCount newPlayer newBoard
+                if (checkWin player point newBoard k) then do
+                    putStrLn $ "Player " ++ show player ++ " wins!!"
+                else do
+                    putStrLn "Smart move! :)"
+                    gameLoop newCount newPlayer newBoard (m,n,k)
             else do
                 putStrLn "Your point is out of bounds or occupied! Try again!"
-                gameLoop count player board
+                gameLoop count player board (m,n,k)
         else do
             putStrLn "It's a tie!"
     
     
-    --checkWin :: Point -> Board -> IO (Maybe Player)
-    --checkWin point board = do
+    checkWin :: Player -> Point -> Board -> Int -> Bool
+    checkWin player point board k = {-isFull (diag point board k) ||-} isFull (column point board k) || isFull (row point board)
+
+    column :: Point -> Board -> Int -> [Slot]
+    column point board k = [((board !! ((fst point) + i)) !! (snd point)) | i <- [0..(k-1)]]
+    
+    diag :: Point -> Board -> Int -> [Slot]
+    diag point board k = [((board !! ((fst point) + i)) !! ((snd point) + i)) | i <- [0..(k-1)]]
+
+    row :: Point -> Board -> [Slot]
+    row point board = board !! (fst point)
+    
+    --tar k som n
+    isLength :: Int -> [a] -> Bool
+    isLength k list = length list >= k
+
+    isFull :: [Slot] -> Bool
+    isFull (x:xs) 
+        | length (x:xs) == 1 = True
+        | otherwise = x == (head xs) && isFull (xs)
 
 
 
