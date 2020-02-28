@@ -225,3 +225,6 @@ module TTT.Game where
 
 
     -- Behöver kolla draws. Ett sätt är att bära omkring en räknare som dekrementeras med varje legalt drag; börjar på antalet spaces; oavgjort när den når 0 utan att nån har vunnit
+
+
+    
