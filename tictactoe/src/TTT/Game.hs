@@ -118,9 +118,8 @@ module TTT.Game where
     Returns: Board where Player has been inserted into the Slot of the Point
     Example: makeMove (1,2) [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X = [[ , , ],[ , ,X],[ , , ]]
     -}
-    makeMove :: Point -> Board -> Player -> IO Board
-    makeMove point board player = do
-        return $ replaceBoard board point (Full player)
+    makeMove :: Point -> Board -> Player -> Board
+    makeMove point board player = replaceBoard board point (Full player)
     
     {- replaceBoard board point slot
         Takes the current board and prints the new board with an added full slot 
@@ -200,6 +199,8 @@ module TTT.Game where
                 putStrLn "Invalid input. Try the format (x,y) \n Where x is the vertical row number and y is the horizontal index"
                 readInt
 
+    --m: width, n: height
+    
     runGame :: IO ()
     runGame = do
         player <- startingPlayer
@@ -223,12 +224,13 @@ module TTT.Game where
             point <- readMove
             let valid = pointValid board point
             if valid then do
-                newBoard <- makeMove point board player
+                let newBoard = makeMove point board player
             --win <- checkWin point newBoard
             -- använd makeMove för nytt bräde. Om invalid, kör samma gameLoop igen
             -- om valit, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
                 let newPlayer = nextPlayer player
                 if (checkWin player point newBoard k) then do
+                    printBoard newBoard
                     putStrLn $ "Player " ++ show player ++ " wins!!"
                 else do
                     putStrLn "Smart move! :)"
@@ -241,13 +243,21 @@ module TTT.Game where
     
     
     checkWin :: Player -> Point -> Board -> Int -> Bool
-    checkWin player point board k = {-isFull (diag point board k) ||-} isFull (column point board k) || isFull (row point board)
+    checkWin player point board k = {-isFullAndLength k (rDiag point board) ||-} isFullAndLength k (lDiag point board) || isFullAndLength k (column point board) || isFullAndLength k (row point board)
 
-    column :: Point -> Board -> Int -> [Slot]
-    column point board k = [((board !! ((fst point) + i)) !! (snd point)) | i <- [0..(k-1)]]
+    column :: Point -> Board -> [Slot]
+    column point board = [((board !! (i)) !! (snd point)) | i <- [0..(n-1)]]
+        where n = (length board)
     
-    diag :: Point -> Board -> Int -> [Slot]
-    diag point board k = [((board !! ((fst point) + i)) !! ((snd point) + i)) | i <- [0..(k-1)]]
+    rDiag :: Point -> Board -> [Slot]
+    rDiag point board = [((board !! ((fst point) - i)) !! ((snd point) + i)) | i <- [0..(n-1)]] ++ [((board !! ((fst point) + i)) !! ((snd point) - i)) | i <- [1..(k-1)]]
+        where n = if (snd point) < (fst point) then (length (board !! 0)) - (snd point) else (length (board !! 0)) - (fst point)
+              k = if (snd point) < (fst point) then (fst point) + 1 else (snd point)
+
+    lDiag :: Point -> Board -> [Slot]
+    lDiag point board = [((board !! ((fst point) + i)) !! ((snd point) + i)) | i <- [0..(n-1)]] ++ [((board !! ((fst point) - i)) !! ((snd point) - i)) | i <- [1..(k-1)]]
+        where n = if (snd point) > (fst point) then (length (board !! 0)) - (snd point) else (length (board !! 0)) - (fst point)
+              k = if (snd point) > (fst point) then (fst point) + 1 else (snd point) + 1
 
     row :: Point -> Board -> [Slot]
     row point board = board !! (fst point)
@@ -261,6 +271,8 @@ module TTT.Game where
         | length (x:xs) == 1 = True
         | otherwise = x == (head xs) && isFull (xs)
 
+    isFullAndLength :: Int -> [Slot] -> Bool
+    isFullAndLength k row = (isFull row) && (isLength k row)
 
 
     -- Behöver kolla draws. Ett sätt är att bära omkring en räknare som dekrementeras med varje legalt drag; börjar på antalet spaces; oavgjort när den når 0 utan att nån har vunnit
