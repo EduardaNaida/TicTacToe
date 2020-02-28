@@ -197,7 +197,7 @@ module TTT.Game where
         case readMaybe str of
             Just int -> return int
             Nothing    -> do
-                putStrLn "Invalid input. Try the format (x,y) \n Where x is the vertical row number and y is the horizontal index"
+                putStrLn "Invalid input. Try the format (x,y,z) \n Where x is the vertical row number, y is the horizontal index and z is number of Slots in a row to win"
                 readInt
 
     runGame :: IO ()
