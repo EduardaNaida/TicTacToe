@@ -185,10 +185,7 @@ module TTT.Game where
     main = do
         runGame
 
-    {- runGame
-        Runs the game
-        Side-effect: The game interaction
-    -}
+    
 
     readInt :: IO Int
     readInt = do
@@ -201,6 +198,10 @@ module TTT.Game where
 
     --m: width, n: height
     
+    {- runGame
+        Runs the game
+        Side-effect: The game interaction
+    -}
     runGame :: IO ()
     runGame = do
         player <- startingPlayer
@@ -214,7 +215,6 @@ module TTT.Game where
        Plays the game
        Side effect: Reads one or more lines from standard input and prints strings
     -}
-    
     gameLoop :: Int -> Player -> Board -> (Int,Int,Int) -> IO ()
     gameLoop count player board (m,n,k) = do
       printBoard board
