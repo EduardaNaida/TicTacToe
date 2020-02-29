@@ -106,13 +106,6 @@ module TTT.Game where
     initialBoard :: (Int,Int) -> Board
     initialBoard (m,n) = replicate m (replicate n Empty)
 
-    {-
-    If we want to generate a board with and arbitrary number of slots:
-
-    genBoard :: Int -> Board
-    genBoard int = Board replicate int (replicate int Empty)
-    -}
-
     {- makeMove point board player
     Creates a Board from input Point
     Returns: Board where Player has been inserted into the Slot of the Point
@@ -130,6 +123,7 @@ module TTT.Game where
     replaceBoard :: Board -> Point -> Slot -> Board
     replaceBoard board point slot = replaceList board (fst point) (replaceList (board !! (fst point)) (snd point) slot)
 
+
      {- replaceList list int insert
         Creates a new list from the old by replacing an element 
         Returns: List containing the original list with one replaced element
@@ -142,12 +136,12 @@ module TTT.Game where
     
     -- För att parsea moves, använd readMaybe från Text.Read
     
+
     {- readMove
-        Checks if the standard input is a point 
-        Returns: The input Point
+        Checks if the input is a valid point, and if so reduces the numbers by one (x-1,y-1)
+        Returns: The reduced input Point 
         Side effect: Reads one or more lines from standard input 
     -}
-
     readMove :: IO Point
     readMove = do
         str <- getLine
@@ -185,10 +179,7 @@ module TTT.Game where
     main = do
         runGame
 
-    {- runGame
-        Runs the game
-        Side-effect: The game interaction
-    -}
+    
 
     readInt :: IO Int
     readInt = do
@@ -196,16 +187,23 @@ module TTT.Game where
         case readMaybe str of
             Just int -> return int
             Nothing    -> do
-                putStrLn "Invalid input. Try the format (x,y) \n Where x is the vertical row number and y is the horizontal index"
+                putStrLn "Invalid input. Enter one number at a time"
                 readInt
 
     --m: width, n: height
     
+    {- runGame
+        Runs the game
+        Side-effect: The game interaction
+    -}
     runGame :: IO ()
     runGame = do
         player <- startingPlayer
+        putStrLn $ "How many rows do you want?"
         m <- readInt
+        putStrLn $ "How many columns do you want?"
         n <- readInt
+        putStrLn $ "How many slots in a row should be required to win?"
         k <- readInt
         let count = m * n
         gameLoop count player (initialBoard (m,n)) (m,n,k)
@@ -214,7 +212,6 @@ module TTT.Game where
        Plays the game
        Side effect: Reads one or more lines from standard input and prints strings
     -}
-    
     gameLoop :: Int -> Player -> Board -> (Int,Int,Int) -> IO ()
     gameLoop count player board (m,n,k) = do
       printBoard board
@@ -227,7 +224,7 @@ module TTT.Game where
                 let newBoard = makeMove point board player
             --win <- checkWin point newBoard
             -- använd makeMove för nytt bräde. Om invalid, kör samma gameLoop igen
-            -- om valit, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
+            -- om valid, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
                 let newPlayer = nextPlayer player
                 if (checkWin player point newBoard (m,n,k)) then do
                     printBoard newBoard
