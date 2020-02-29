@@ -172,13 +172,6 @@ module TTT.Game where
     tieCount int = do
         return (int - 1)
 
-    {-main
-      Calls runGame
-    -}
-    main :: IO ()
-    main = do
-        runGame
-
     
 
     readInt :: IO Int
@@ -190,8 +183,6 @@ module TTT.Game where
                 putStrLn "Invalid input. Enter one number at a time"
                 readInt
 
-    --m: width, n: height
-    
     {- runGame
         Runs the game
         Side-effect: The game interaction
