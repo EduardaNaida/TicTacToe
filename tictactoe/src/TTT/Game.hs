@@ -244,9 +244,12 @@ module TTT.Game where
     winCases board (m,n,k) =
         filter ((== k) . length) $ rows ++ cols ++ allDiags
         where
-            rows = [board !! i | i <- [0..(m-1)]]
-            cols = transpose board
-            allDiags = diags board ++ diags (map reverse board)
+            rows = concatMap inRow $ [board !! i | i <- [0..(m-1)]]
+            cols = concatMap inRow $ transpose board
+            allDiags = concatMap inRow $ diags board ++ diags (map reverse board)
+
+    inRow :: [Slot] -> [[Slot]]
+    inRow diag = concatMap tails (map reverse(tails diag))
 
 
 
