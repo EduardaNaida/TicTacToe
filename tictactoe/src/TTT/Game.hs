@@ -159,7 +159,7 @@ module TTT.Game where
 
                 
     pointValid :: Board -> Point -> Bool
-    pointValid board point = (fst point) >= 0 && (fst point) < 3 && (snd point) >= 0 && (snd point) < 3 && isEmpty board point
+    pointValid board point = (fst point) >= 0 && (fst point) < (length board) && (snd point) >= 0 && (snd point) < (length (board !! 0)) && isEmpty board point
 
      {- isEmpty board point
         Checks if a Slot is empty or not
@@ -229,7 +229,7 @@ module TTT.Game where
             -- använd makeMove för nytt bräde. Om invalid, kör samma gameLoop igen
             -- om valit, kolla vinst; om ingen vinst, kör gameLoop på det nya brädet, dekrementera movesLeft, och byt spelare
                 let newPlayer = nextPlayer player
-                if (checkWin player point newBoard k) then do
+                if (checkWin player point newBoard (m,n,k)) then do
                     printBoard newBoard
                     putStrLn $ "Player " ++ show player ++ " wins!!"
                 else do
@@ -242,18 +242,40 @@ module TTT.Game where
             putStrLn "It's a tie!"
     
     
-    checkWin :: Player -> Point -> Board -> Int -> Bool
-    checkWin player point board k = {-isFullAndLength k (rDiag point board) ||-} isFullAndLength k (lDiag point board) || isFullAndLength k (column point board) || isFullAndLength k (row point board)
+    checkWin :: Player -> Point -> Board -> (Int,Int,Int) -> Bool
+    checkWin player point board (m,n,k) = any (all (== (Full player))) $ winCases board (m,n,k)
+
+    diagonal :: [[a]] -> [a]
+    diagonal []           = []
+    diagonal ((x:_):rows) = x : diagonal (map tail rows)
+
+    diags :: [[a]] -> [[a]]
+    diags board = map diagonal (init . tails $ board) ++ tail (map diagonal (init . tails $ transpose board))
+
+    winCases :: Board -> (Int,Int,Int) -> [[Slot]]
+    winCases board (m,n,k) =
+        filter ((== k) . length) $ rows ++ cols ++ allDiags
+        where
+            rows = [board !! i | i <- [0..(m-1)]]
+            cols = transpose board
+            allDiags = diags board ++ diags (map reverse board)
+
+
+
+
+
+
+    {-
 
     column :: Point -> Board -> [Slot]
     column point board = [((board !! (i)) !! (snd point)) | i <- [0..(n-1)]]
         where n = (length board)
     
     rDiag :: Point -> Board -> [Slot]
-    rDiag point board = [((board !! ((fst point) - i)) !! ((snd point) + i)) | i <- [0..(n-1)]] ++ [((board !! ((fst point) + i)) !! ((snd point) - i)) | i <- [1..(k-1)]]
-        where n = if (snd point) < (fst point) then (length (board !! 0)) - (snd point) else (length (board !! 0)) - (fst point)
-              k = if (snd point) < (fst point) then (fst point) + 1 else (snd point)
-
+    rDiag point board = [((board !! ((fst point) - i)) !! ((snd point) + i)) | i <- [0..(n-1)]] {-++ [((board !! ((fst point) + i)) !! ((snd point) - i)) | i <- [1..(k-1)]]-}
+        where k = if (snd point) > (fst point) then (length (board !! 0)) - (fst point) else (length (board !! 0)) - (snd point)
+              n = if ((fst point) - (snd point) + 1) < 1 then (fst point) + 1 else (fst point) - (snd point) + 1 --if (snd point) > (fst point) then (length (board !! 0)) - (snd point) + 1 else (fst point) + 1
+    
     lDiag :: Point -> Board -> [Slot]
     lDiag point board = [((board !! ((fst point) + i)) !! ((snd point) + i)) | i <- [0..(n-1)]] ++ [((board !! ((fst point) - i)) !! ((snd point) - i)) | i <- [1..(k-1)]]
         where n = if (snd point) > (fst point) then (length (board !! 0)) - (snd point) else (length (board !! 0)) - (fst point)
@@ -261,7 +283,7 @@ module TTT.Game where
 
     row :: Point -> Board -> [Slot]
     row point board = board !! (fst point)
-    
+
     --tar k som n
     isLength :: Int -> [a] -> Bool
     isLength k list = length list >= k
@@ -278,3 +300,4 @@ module TTT.Game where
     -- Behöver kolla draws. Ett sätt är att bära omkring en räknare som dekrementeras med varje legalt drag; börjar på antalet spaces; oavgjort när den når 0 utan att nån har vunnit
 
 
+    -}
