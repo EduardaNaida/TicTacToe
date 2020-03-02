@@ -1,6 +1,7 @@
 module Main where
 
-import Lib
+    import Lib
+    import TTT.Game
 
-main :: IO ()
-main = someFunc
+    main :: IO ()
+    main = TTT.Game.runGame

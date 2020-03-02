@@ -1,0 +1,4 @@
+tictactoe/.DS_Store
+tictactoe/package.yaml
+tictactoe/app/Main.hs
+tictactoe/src/TTT/Game.hs
