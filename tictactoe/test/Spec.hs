@@ -1,5 +1,5 @@
 import Test.HUnit
-import qualified Tests
+import Tests
 
 main :: IO ()
 main = Tests.runtests
