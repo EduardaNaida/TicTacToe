@@ -1,2 +1,5 @@
+import Test.HUnit
+import qualified Tests
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = Tests.runtests

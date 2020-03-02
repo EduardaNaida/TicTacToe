@@ -1,10 +1,10 @@
 name:                tictactoe
 version:             0.1.0.0
-github:              "githubuser/tictactoe"
+github:              "bombdoge77/tictactoeproject"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2020 Author name here"
+author:              "Oliver Kiss, Agnes Sidemo, Elsa Kidman, Eduarda Naida"
+maintainer:          "oliver.kiss.4551@student.uu.se"
+copyright:           "2020 Oliver Kiss, Agnes Sidemo, Elsa Kidman, Eduarda Naida"
 
 extra-source-files:
 - README.md
