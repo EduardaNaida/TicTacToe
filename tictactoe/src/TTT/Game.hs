@@ -53,14 +53,15 @@ module TTT.Game where
     horizontalRow string = concat $ replicate (length string) "-"
 
     {- printBoard board
-        Takes the board and prints it as an 
-        RETURNS: prints out the board with the varticlerow and an horizontalrow as long as the string verticalrow prints.
+        Prints the board with a verticalrow with the slots and the horizontalrow that devides the verticalrows.
+        RETURNS: Rows with slots and a divider between the verticalrows.
         SIDE EFFECTS: Prints the board
         EXAMPLES: printBoard [[Empty,Full X,Empty],[Full O,Empty,Full O]] ==    | X |
                                                                              ---------
                                                                              O |   | O
                                                                              ---------
     -}
+
     printBoard :: Board -> IO ()
     printBoard board = for_ board $ \row -> do
         putStrLn $ verticleRow row
@@ -71,9 +72,11 @@ module TTT.Game where
 
 
     {-startingPlayer
-    Randomly decides a game player.
-    Returns: X or O at random
-    Side-Effects: Updates the RNG seed
+        Randomly decides a player in the game.
+        RETURNS: X or O at random
+        SIDE EFFECTS: Updates the RNG seed
+        EXAMPLES: startingPlayer == O
+                  startingPlayer == X
     -}
     
     startingPlayer :: IO Player
@@ -85,75 +88,87 @@ module TTT.Game where
             return O
     
     {-startingPlayerAux
-    Randomly decides between 1 or 2 and stores it in an Int
-    Returns: The stored Int
-    Side-effect: Updates the RNG seed
+        Randomly decides between 1 or 2 and stores it in an Int
+        RETURNS: The stored Int
+        SIDE EFFECTS: Updates the RNG seed
+        EXAMPLES: startingPlayerAux == 1
+                  startingPlayerAux == 2
     -}
+
     startingPlayerAux :: IO Int
     startingPlayerAux = do 
         a <- randomRIO (1,2)
         return a
 
     {-nextPlayer Player
-    Switches turnes for the players
-    Returns: X or O
+        Switches turnes for the players
+        RETURNS: X or O
     -}
+
     nextPlayer :: Player -> Player
     nextPlayer X = O
     nextPlayer O = X
     
     {-playerInsert Player
-    Corresponds the Player to a Slot
-    Returns: Full X or Full O
+        Corresponds the Player to a Slot
+        RETURNS: Full X or Full O
     -}
+
     playerInsert :: Player -> Slot
     playerInsert X = Full X 
     playerInsert O = Full O
     
-    {-initialBoard
-    Creates the initial gameplan
-    Returns: An empty board
-    Example: initialBoard (3,3) = [[ , , ],[ , , ],[ , , ]]
+    {-initialBoard (m,n)
+        Creates the initial gameplan
+        RETURNS: An empty board, where the first int is how many lists and the second int is how many element
+        should be in those lists
+        EXAMPLES: initialBoard (3,3) == [[ , , ],[ , , ],[ , , ]]
+                  initialBoard (3,1) == [[ ],[ ],[ ]]
+                  initialBoard (1,0) == [[]]
+                  initialBoard (0,1) == []
     -}
+
     initialBoard :: (Int,Int) -> Board
     initialBoard (m,n) = replicate m (replicate n Empty)
 
     {- makeMove point board player
-    Creates a Board from input Point
-    Returns: Board where Player has been inserted into the Slot of the Point
-    Example: makeMove (1,2) [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X = [[ , , ],[ , ,X],[ , , ]]
+        Updates the Board from an input Point
+        RETURNS: Board where Player has been inserted into the Slot of the Point
+        EXAMPLES: makeMove (1,2) [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X == [[ , , ],[ , ,X],[ , , ]]
+                  makeMove (0,0) [[Empty],[Empty],[Empty]] O == [[O],[ ],[ ]]
     -}
+
     makeMove :: Point -> Board -> Player -> Board
     makeMove point board player = replaceBoard board point (Full player)
     
     {- replaceBoard board point slot
-        Takes the current board and prints the new board with an added full slot 
-        Returns: Board where the Player's move is updated
-        Examples: replaceBoard [[Full X,Full X,Empty],[Full O,Empty,Empty],[Full O,Empty,Empty]] (0,2) (Full X) = [[X,X,X],[O, , ],[O, , ]]
-                  replaceBoard [[Full X,Empty,Empty],[Full O,Empty,Full O],[Full X,Full X,Empty]] (1,1) (Full O) = [[X, , ],[O,O,O],[X,X, ]]
+        Takes the current board and returns the new board with an added full slot 
+        RETURNS: Board where a point is updated
+        EXAMPLES: replaceBoard [[Full X,Full X,Empty],[Full O,Empty,Empty],[Full O,Empty,Empty]] (0,2) (Full X) == [[X,X,X],[O, , ],[O, , ]]
+                  replaceBoard [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) (Full O) == [[[O, , ],[ , , ],[ , , ]]
     -}
+    
     replaceBoard :: Board -> Point -> Slot -> Board
     replaceBoard board point slot = replaceList board (fst point) (replaceList (board !! (fst point)) (snd point) slot)
 
 
      {- replaceList list int insert
         Creates a new list from the old by replacing an element 
-        Returns: List containing the original list with one replaced element
-        Examples: replaceList [Empty,Full O,Empty] 2 (Full X) = [ ,O,X]
-                  replaceList [Empty,Full O,Empty] 0 (Full O) = [O,O, ]
+        RETURNS: List containing the original list with one replaced element
+        EXAMPLES: replaceList [Empty,Full O,Empty] 2 (Full X) = [ ,O,X]
+                  replaceList [Empty,Empty,Empty] 0 (Full O) = [O, , ]
     -}
+
     replaceList :: [a] -> Int -> a -> [a]
     replaceList list int insert = x ++ insert : ys
         where (x,_:ys) = splitAt int list
-    
-    -- För att parsea moves, använd readMaybe från Text.Read
-    
 
     {- readMove
-        Checks if the input is a valid point, and if so reduces the numbers by one (x-1,y-1)
-        Returns: The reduced input Point 
-        Side effect: Reads one or more lines from standard input 
+        Checks if the input is a valid point, and if so reduces the numbers by one int the point (x-1,y-1)
+        RETURNS: The reduced input Point 
+        SIDE EFFECTS: Reads one or more lines from standard input 
     -}
+
     readMove :: IO Point
     readMove = do
         str <- getLine
@@ -163,31 +178,44 @@ module TTT.Game where
                 putStrLn "Invalid input. Try the format (x,y) \n Where x is the vertical row number and y is the horizontal index"
                 readMove
 
-                
+    {- pointValid board point
+        Checks if a point is not negative, within the board and not empty
+        RETURNS: True if the point follows the conditions staded for it to be valid and false otherwise
+        EXAMPLES: pointValid [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) == True
+                  pointValid [[Full X,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) == False
+                  pointValid [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (100,0) == False
+    -}
+
     pointValid :: Board -> Point -> Bool
     pointValid board point = (fst point) >= 0 && (fst point) < (length board) && (snd point) >= 0 && (snd point) < (length (board !! 0)) && isEmpty board point
 
      {- isEmpty board point
-        Checks if a Slot is empty or not
-        Returns: True if the Slot on the board is empty and false if the Slot is Full
-        Example: isEmpty [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Full X]] (0,0) = True
-                 isEmpty [[Full O,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Full X]] (0,0) = False
+        Checks if a point on the board is empty or not
+        RETURNS: True if the Slot on the board is empty and false if the Slot is Full
+        EXAMPLES: isEmpty [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty] (0,0) = True
+                 isEmpty [[Full O,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) = False
     -}
+
     isEmpty :: Board -> Point -> Bool
     isEmpty board point = ((board !! (fst point)) !! (snd point)) == Empty
     
    {-tieCount int
-     Removes 1 from an Int
-     Returns: 
+        Removes 1 from an Int
+        RETURNS: Int - 1
+        EXAMPLES: tieCount 5 == 4
    -}
+
     tieCount :: Int -> IO Int
     tieCount int = do
         return (int - 1)
 
     
     {- readInt
-    Side-effect:
+        Reads an input and prints it out if 
+        RETURNS: 
+        SIDE EFFECTS:
     -}
+
     readInt :: IO Int
     readInt = do
         str <- getLine
