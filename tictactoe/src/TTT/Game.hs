@@ -8,7 +8,6 @@ module TTT.Game where
 
     {- The type Point represent the gameplan, where the first Int is the vertical row where 0 is the row highest up,
      the second Int represent the horizontal row.
-     Invariant: 0 - 2
      -}
     type Point = (Int, Int)
 
@@ -34,20 +33,33 @@ module TTT.Game where
         show O = "O"
 
     {-verticleRow row
-    Creates the verticle row
-    Returns: String representing a row
+        Creates the verticle row
+        RETURNS: A row representing the slots as a string
+        EXAMPLES: verticleRow [Empty, Full X, Empty] == "  | X |  "
+                  verticleRow [Full O, Empty, Full X] == "O |   | X"
+
     -}
     verticleRow :: [Slot] -> String
     verticleRow row = intercalate " | " $ fmap show row
 
-    {-horizontalRow
-    Prints a string representing a row
+    {-horizontalRow string
+        Prints a string representing a divider (-) between horizontal rows
+        RETURNS: A string with the sign - , which length depends on how long the inputted string is.
+        EXAMPLES: horizontalRow "  | X |  "  == "---------"
+                  horizontalRow " " == "-"
+
     -}
     horizontalRow :: String -> String
     horizontalRow string = concat $ replicate (length string) "-"
 
     {- printBoard board
-       Side effects: Prints the board
+        Takes the board and prints it as an 
+        RETURNS: prints out the board with the varticlerow and an horizontalrow as long as the string verticalrow prints.
+        SIDE EFFECTS: Prints the board
+        EXAMPLES: printBoard [[Empty,Full X,Empty],[Full O,Empty,Full O]] ==    | X |
+                                                                             ---------
+                                                                             O |   | O
+                                                                             ---------
     -}
     printBoard :: Board -> IO ()
     printBoard board = for_ board $ \row -> do
@@ -163,6 +175,10 @@ module TTT.Game where
     tieCount int = do
         return (int - 1)
 
+    
+    {- readInt
+    Side-effect:
+    -}
     readInt :: IO Int
     readInt = do
         str <- getLine
