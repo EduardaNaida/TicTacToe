@@ -67,10 +67,6 @@ module TTT.Game where
         putStrLn $ verticleRow row
         putStrLn $ horizontalRow (verticleRow row)
 
-        -- for_ :: [a] -> (a -> IO b) -> IO ()
-        -- for :: [a] -> (a -> IO b) -> IO [b]
-
-
     {-startingPlayer
         Randomly decides a player in the game.
         RETURNS: X or O at random
@@ -151,7 +147,6 @@ module TTT.Game where
     replaceBoard :: Board -> Point -> Slot -> Board
     replaceBoard board point slot = replaceList board (fst point) (replaceList (board !! (fst point)) (snd point) slot)
 
-
      {- replaceList list int insert
         Creates a new list from the old by replacing an element 
         RETURNS: List containing the original list with one replaced element
@@ -177,6 +172,7 @@ module TTT.Game where
             Nothing    -> do
                 putStrLn "Invalid input. Try the format (x,y) \n Where x is the vertical row number and y is the horizontal index"
                 readMove
+<<<<<<< HEAD
 
     {- pointValid board point
         Checks if a point is not negative, within the board and not empty
@@ -186,6 +182,9 @@ module TTT.Game where
                   pointValid [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (100,0) == False
     -}
 
+=======
+                
+>>>>>>> 6bc115682e06ceb6af9197f219423d2e26ecdf63
     pointValid :: Board -> Point -> Bool
     pointValid board point = (fst point) >= 0 && (fst point) < (length board) && (snd point) >= 0 && (snd point) < (length (board !! 0)) && isEmpty board point
 
@@ -198,7 +197,7 @@ module TTT.Game where
 
     isEmpty :: Board -> Point -> Bool
     isEmpty board point = ((board !! (fst point)) !! (snd point)) == Empty
-    
+
    {-tieCount int
         Removes 1 from an Int
         RETURNS: Int - 1
@@ -227,6 +226,7 @@ module TTT.Game where
             Nothing    -> do
                 putStrLn "Invalid input. Enter one number at a time"
                 readInt
+
 
     {- runGame
         Runs the game
@@ -259,7 +259,7 @@ module TTT.Game where
             if valid then do
                 let newBoard = makeMove point board player
                 let newPlayer = nextPlayer player
-                if (checkWin player point newBoard (m,n,k)) then do
+                if (checkWin player newBoard (m,n,k)) then do
                     printBoard newBoard
                     putStrLn $ "Player " ++ show player ++ " wins!!"
                 else do
@@ -271,16 +271,31 @@ module TTT.Game where
         else do
             putStrLn "It's a tie!"
     
+    {-checkWin player board (m,n,k)
+
+    -}
+
+    checkWin :: Player -> Board -> (Int,Int,Int) -> Bool
+    checkWin player board (m,n,k) = any (all (== (Full player))) $ winCases board (m,n,k)
+
+    {-diagonal board
     
-    checkWin :: Player -> Point -> Board -> (Int,Int,Int) -> Bool
-    checkWin player point board (m,n,k) = any (all (== (Full player))) $ winCases board (m,n,k)
+    -}
 
     diagonal :: [[a]] -> [a]
     diagonal []           = []
     diagonal ((x:_):rows) = x : diagonal (map tail rows)
 
+    {-diags board
+    
+    -}
+
     diags :: [[a]] -> [[a]]
     diags board = map diagonal (init . tails $ board) ++ tail (map diagonal (init . tails $ transpose board))
+
+    {-winCases board (m,n,k)
+    
+    -}
 
     winCases :: Board -> (Int,Int,Int) -> [[Slot]]
     winCases board (m,n,k) =
@@ -290,47 +305,9 @@ module TTT.Game where
             cols = concatMap inRow $ transpose board
             allDiags = concatMap inRow $ diags board ++ diags (map reverse board)
 
+    {-inRow diag
+    
+    -}
+
     inRow :: [Slot] -> [[Slot]]
     inRow diag = concatMap tails (map reverse(tails diag))
-
-
-
-
-
-
-    {-
-
-    column :: Point -> Board -> [Slot]
-    column point board = [((board !! (i)) !! (snd point)) | i <- [0..(n-1)]]
-        where n = (length board)
-    
-    rDiag :: Point -> Board -> [Slot]
-    rDiag point board = [((board !! ((fst point) - i)) !! ((snd point) + i)) | i <- [0..(n-1)]] {-++ [((board !! ((fst point) + i)) !! ((snd point) - i)) | i <- [1..(k-1)]]-}
-        where k = if (snd point) > (fst point) then (length (board !! 0)) - (fst point) else (length (board !! 0)) - (snd point)
-              n = if ((fst point) - (snd point) + 1) < 1 then (fst point) + 1 else (fst point) - (snd point) + 1 --if (snd point) > (fst point) then (length (board !! 0)) - (snd point) + 1 else (fst point) + 1
-    
-    lDiag :: Point -> Board -> [Slot]
-    lDiag point board = [((board !! ((fst point) + i)) !! ((snd point) + i)) | i <- [0..(n-1)]] ++ [((board !! ((fst point) - i)) !! ((snd point) - i)) | i <- [1..(k-1)]]
-        where n = if (snd point) > (fst point) then (length (board !! 0)) - (snd point) else (length (board !! 0)) - (fst point)
-              k = if (snd point) > (fst point) then (fst point) + 1 else (snd point) + 1
-
-    row :: Point -> Board -> [Slot]
-    row point board = board !! (fst point)
-
-    --tar k som n
-    isLength :: Int -> [a] -> Bool
-    isLength k list = length list >= k
-
-    isFull :: [Slot] -> Bool
-    isFull (x:xs) 
-        | length (x:xs) == 1 = True
-        | otherwise = x == (head xs) && isFull (xs)
-
-    isFullAndLength :: Int -> [Slot] -> Bool
-    isFullAndLength k row = (isFull row) && (isLength k row)
-
-
-    -- Behöver kolla draws. Ett sätt är att bära omkring en räknare som dekrementeras med varje legalt drag; börjar på antalet spaces; oavgjort när den når 0 utan att nån har vunnit
-
-
-    -}
