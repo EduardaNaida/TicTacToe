@@ -43,7 +43,7 @@ module TTT.Game where
 
     {-  dividingLine string
         Prints a string representing a divider (-) between horizontal rows
-        RETURNS: A string with the sign - . Which length depends on how long the inputted string is
+        RETURNS: A string with the sign - . Which length depends on how long the input string is
         EXAMPLES: dividingLine "  | X |  "  = "---------"
                   dividingLine " " = "-"
 
@@ -65,7 +65,7 @@ module TTT.Game where
         putStrLn $ dividingLine (horizontalRow row)
 
     {-startingPlayer
-        Randomly decides a player 
+        Picks a random player
         RETURNS: X or O at random
         SIDE EFFECTS: Updates the RNG seed
         EXAMPLES: startingPlayer = O
@@ -80,8 +80,8 @@ module TTT.Game where
             return O
     
     {-startingPlayerAux
-        Randomly decides between 1 or 2 and stores it in an Int
-        RETURNS: The stored Int
+        Generates a random Int that is either 1 or 2
+        RETURNS: 1 or 2 at random
         SIDE EFFECTS: Updates the RNG seed
         EXAMPLES: startingPlayerAux = 1
                   startingPlayerAux = 2
@@ -91,74 +91,64 @@ module TTT.Game where
         a <- randomRIO (1,2)
         return a
 
-    {-nextPlayer Player
-        Switches turnes for the players
+    {-nextPlayer player
+        Switches turns for the players
         RETURNS: X or O
     -}
-
     nextPlayer :: Player -> Player
     nextPlayer X = O
     nextPlayer O = X
     
-    {-playerInsert Player
-        Corresponds the Player to a Slot
+    {-playerInsert player
+        Returns the Slot that corresponds to a certain player
         RETURNS: Full X or Full O
     -}
-
     playerInsert :: Player -> Slot
     playerInsert X = Full X 
     playerInsert O = Full O
     
     {-initialBoard (m,n)
-        Creates the initial gameplan
-        RETURNS: An empty board, where the first int is how many lists and the second int is how many element
-        should be in those lists
-        EXAMPLES: initialBoard (3,3) == [[ , , ],[ , , ],[ , , ]]
-                  initialBoard (3,1) == [[ ],[ ],[ ]]
-                  initialBoard (1,0) == [[]]
-                  initialBoard (0,1) == []
+        Generates the initial game board
+        RETURNS: An empty board with height m and width n
+        EXAMPLES: initialBoard (3,3) = [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]]
+                  initialBoard (3,2) = [[Empty,Empty],[Empty,Empty],[Empty,Empty]]
     -}
-
     initialBoard :: (Int,Int) -> Board
     initialBoard (m,n) = replicate m (replicate n Empty)
 
     {- makeMove point board player
-        Updates the Board from an input Point
-        RETURNS: Board where Player has been inserted into the Slot of the Point
-        EXAMPLES: makeMove (1,2) [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X == [[ , , ],[ , ,X],[ , , ]]
-                  makeMove (0,0) [[Empty],[Empty],[Empty]] O == [[O],[ ],[ ]]
+        Inserts a slot in a given board at a given point
+        RETURNS: Board where a new slot has been inserted
+        EXAMPLES: makeMove (1,2) [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X = [[Empty,Empty,Empty],[Empty,Empty,(Full X)],[Empty,Empty,Empty]]
+                  makeMove (0,0) [[Empty,Empty],[Empty,Empty],[Empty,Empty]] O = [[(Full O),Empty],[Empty,Empty],[Empty,Empty]]
     -}
-
     makeMove :: Point -> Board -> Player -> Board
     makeMove point board player = replaceBoard board point (Full player)
     
     {- replaceBoard board point slot
-        Takes the current board and returns the new board with an added full slot 
-        RETURNS: Board where a point is updated
-        EXAMPLES: replaceBoard [[Full X,Full X,Empty],[Full O,Empty,Empty],[Full O,Empty,Empty]] (0,2) (Full X) == [[X,X,X],[O, , ],[O, , ]]
-                  replaceBoard [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) (Full O) == [[[O, , ],[ , , ],[ , , ]]
+        Takes the current board and returns the new board with a slot inserted at a given point
+        RETURNS: Board containing inserted slot
+        EXAMPLES: replaceBoard [[Full X,Full X,Empty],[Full O,Empty,Empty],[Full O,Empty,Empty]] (0,2) (Full X) = [[(Full X),(Full X),(Full X)],[(Full O),Empty,Empty],[(Full O),Empty,Empty]]
+                  replaceBoard [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) (Full O) = [[(Full O),Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]]
     -}
-    
     replaceBoard :: Board -> Point -> Slot -> Board
     replaceBoard board point slot = replaceList board (fst point) (replaceList (board !! (fst point)) (snd point) slot)
 
      {- replaceList list int insert
-        Creates a new list from the old by replacing an element 
-        RETURNS: List containing the original list with one replaced element
-        EXAMPLES: replaceList [Empty,Full O,Empty] 2 (Full X) = [ ,O,X]
-                  replaceList [Empty,Empty,Empty] 0 (Full O) = [O, , ]
+        Replaces an elememnt with another in a given list
+        RETURNS: The original list with one replaced element
+        EXAMPLES: replaceList [Empty,(Full O),Empty] 2 (Full X) = [Empty,(Full O),(Full X)]
+                  replaceList [Empty,Empty,Empty] 0 (Full O) = [(Full O),Empty,Empty]
     -}
-
     replaceList :: [a] -> Int -> a -> [a]
     replaceList list int insert = x ++ insert : ys
         where (x,_:ys) = splitAt int list
 
     {- readMove
-        Checks if the input is a valid point, and if so reduces the numbers by one int the point (x-1,y-1)
-        RETURNS: The reduced input Point 
+        Checks if the input is a point, and if so returns a new point
+        RETURNS: The input point with 1 subtracted from each element
         SIDE EFFECTS: Reads one or more lines from standard input 
     -}
-
     readMove :: IO Point
     readMove = do
         str <- getLine
@@ -169,43 +159,38 @@ module TTT.Game where
                 readMove
 
     {- pointValid board point
-        Checks if a point is not negative, within the board and not empty
-        RETURNS: True if the point follows the conditions staded for it to be valid and false otherwise
-        EXAMPLES: pointValid [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) == True
-                  pointValid [[Full X,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) == False
-                  pointValid [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (100,0) == False
+        Checks if a point is within the board and empty
+        RETURNS: True if the point exists on the board and is empty, otherwise False
+        EXAMPLES: pointValid [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) = True
+                  pointValid [[(Full X),Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) = False
+                  pointValid [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (100,0) = False
     -}
-
     pointValid :: Board -> Point -> Bool
     pointValid board point = (fst point) >= 0 && (fst point) < (length board) && (snd point) >= 0 && (snd point) < (length (board !! 0)) && isEmpty board point
 
      {- isEmpty board point
-        Checks if a point on the board is empty or not
-        RETURNS: True if the Slot on the board is empty and false if the Slot is Full
+        Checks if a slot is empty or not
+        RETURNS: True if the slot is empty and false if the slot is full
         EXAMPLES: isEmpty [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty] (0,0) = True
-                 isEmpty [[Full O,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) = False
+                 isEmpty [[(Full O),Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (0,0) = False
     -}
-
     isEmpty :: Board -> Point -> Bool
     isEmpty board point = ((board !! (fst point)) !! (snd point)) == Empty
 
    {-tieCount int
         Removes 1 from an Int
         RETURNS: Int - 1
-        EXAMPLES: tieCount 5 == 4
+        EXAMPLES: tieCount 5 = 4
    -}
-
     tieCount :: Int -> IO Int
     tieCount int = do
         return (int - 1)
-
     
     {- readInt
         Reads an input and prints it out if 
-        RETURNS: 
-        SIDE EFFECTS:
+        RETURNS: The input Int
+        SIDE EFFECTS: Reads one or more lines from standard input and prints strings
     -}
-
     readInt :: IO Int
     readInt = do
         str <- getLine
@@ -218,14 +203,14 @@ module TTT.Game where
                 putStrLn "Invalid input. Enter one number at a time"
                 readInt
 
-
     {- runGame
         Runs the game
-        Side-effect: The game interaction
+        SIDE EFFECTS: The game, updates RNG seed
     -}
     runGame :: IO ()
     runGame = do
         player <- startingPlayer
+        putStrLn "\nWELCOME TO TIC TAC TOE - HOW MANY IN A ROW?\n"
         putStrLn $ "How many rows do you want?"
         m <- readInt
         putStrLn $ "How many columns do you want?"
@@ -233,11 +218,12 @@ module TTT.Game where
         putStrLn $ "How many slots in a row should be required to win?"
         k <- readInt
         let count = m * n
+        putStrLn "\n\n\n\n\n\n\nHow to play: when it is your turn, enter a coordinate (m,n) where m is the vertical position and n is the horizontal position\n\n"
         gameLoop count player (initialBoard (m,n)) (m,n,k)
     
     {- gameLoop count player board
        Plays the game
-       Side effect: Reads one or more lines from standard input and prints strings
+       SIDE EFFECTS: Reads one or more lines from standard input and prints strings
     -}
     gameLoop :: Int -> Player -> Board -> (Int,Int,Int) -> IO ()
     gameLoop count player board (m,n,k) = do
@@ -254,7 +240,7 @@ module TTT.Game where
                     printBoard newBoard
                     putStrLn $ "Player " ++ show player ++ " wins!!"
                 else do
-                    putStrLn "Smart move! :)"
+                    putStrLn "\n\n\n\n\n\n\n\nSmart move! :)\n"
                     gameLoop newCount newPlayer newBoard (m,n,k)
             else do
                 putStrLn "Your point is out of bounds or occupied! Try again!"
@@ -263,31 +249,37 @@ module TTT.Game where
             putStrLn "It's a tie!"
     
     {-checkWin player board (m,n,k)
+    Checks if a given player has won the game
+    RETURNS: True or False
+    EXAMPLES: checkWin X [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] (3,3,3) = True
 
     -}
-
     checkWin :: Player -> Board -> (Int,Int,Int) -> Bool
     checkWin player board (m,n,k) = any (all (== (Full player))) $ winCases board (m,n,k)
 
     {-diagonal board
-    
+    Returns the diagonal from the top left to bottom right of a board
+    EXAMPLES: diagonal [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] = [(Full X),(Full X),(Full X)]
+              diagonal [[Empty,Empty,(Full X)],[Empty,(Full X),Empty],[(Full X),Empty,Empty]] = [Empty,(Full X),Empty]
     -}
-
     diagonal :: [[a]] -> [a]
     diagonal []           = []
     diagonal ((x:_):rows) = x : diagonal (map tail rows)
 
     {-diags board
-    
-    -}
+    Returns all left-to-right diagnoals of a board
+    RETURNS: A list of all left-to-right diagonals
+    EXAMPLES: diags [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] = [[(Full X),(Full X),(Full X)],[Empty,Empty],[Empty],[Empty,Empty],[Empty]]
 
+    -}
     diags :: [[a]] -> [[a]]
     diags board = map diagonal (init . tails $ board) ++ tail (map diagonal (init . tails $ transpose board))
 
     {-winCases board (m,n,k)
-    
+    Returns all possible sequences of slots in a row that are of length k
+    RETURNS: A list of all the rows, columns and diagonals on the board that have the length k
+    EXAMPLES: winCases [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] (3,3,3) = [[Empty,Empty,(Full X)],[Empty,(Full X),Empty],[(Full X),Empty,Empty],[Empty,Empty,(Full X)],[Empty,(Full X),Empty],[(Full X),Empty,Empty],[(Full X),(Full X),(Full X)],[Empty,(Full X),Empty]]
     -}
-
     winCases :: Board -> (Int,Int,Int) -> [[Slot]]
     winCases board (m,n,k) =
         filter ((== k) . length) $ rows ++ cols ++ allDiags
@@ -297,8 +289,9 @@ module TTT.Game where
             allDiags = concatMap inRow $ diags board ++ diags (map reverse board)
 
     {-inRow diag
-    
+    Returns all possible ways a row, column or diagonal can contain a sequence of elements.
+    RETURNS: A list of lists that contains all possible ways the argument list's elements can be in a row
+    EXAMPLES: inRow [Empty,(Full X),(Full X),(Full X)] = [[(Full X),(Full X),(Full X),Empty],[(Full X),(Full X),Empty],[(Full X),Empty],[Empty],[],[(Full X),(Full X),(Full X)],[(Full X),(Full X)],[(Full X)],[],[(Full X),(Full X)],[(Full X)],[],[(Full X)],[],[]]
     -}
-
-    inRow :: [Slot] -> [[Slot]]
-    inRow diag = concatMap tails (map reverse(tails diag))
+    inRow :: [a] -> [[a]]
+    inRow list = concatMap tails (map reverse(tails list))
