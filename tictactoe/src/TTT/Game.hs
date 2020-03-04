@@ -6,8 +6,8 @@ module TTT.Game where
     import Data.List
     import Data.Foldable
 
-    {- The type Point represent the gameplan, where the first Int is the vertical row where 0 is the row highest up,
-     the second Int represent the horizontal row.
+    {- The type Point represents the gameplan. The first Int corresponds to the vertical row,
+       and the second Int is the horizontal row
      -}
     type Point = (Int, Int)
 
@@ -19,7 +19,7 @@ module TTT.Game where
    -}
     data Slot = Empty | Full Player deriving(Eq)
 
-    {-The Player data type represent the player who can be either X or O
+    {-The Player data type represents the player, being either X or O
    -}
     data Player = X | O deriving(Eq)
 
@@ -32,49 +32,45 @@ module TTT.Game where
         show X = "X"
         show O = "O"
 
-    {-verticleRow row
-        Creates the verticle row
+    {-horizontalRow row
+        Prints a given row of a Board
         RETURNS: A row representing the slots as a string
-        EXAMPLES: verticleRow [Empty, Full X, Empty] == "  | X |  "
-                  verticleRow [Full O, Empty, Full X] == "O |   | X"
-
+        EXAMPLES: horizontalRow [Empty, Full X, Empty] = "  | X |  "
+                  horizontalRow [Full O, Empty, Full X] = "O |   | X"
     -}
-    verticleRow :: [Slot] -> String
-    verticleRow row = intercalate " | " $ fmap show row
+    horizontalRow :: [Slot] -> String
+    horizontalRow row = intercalate " | " $ fmap show row
 
-    {-horizontalRow string
+    {-  dividingLine string
         Prints a string representing a divider (-) between horizontal rows
-        RETURNS: A string with the sign - , which length depends on how long the inputted string is.
-        EXAMPLES: horizontalRow "  | X |  "  == "---------"
-                  horizontalRow " " == "-"
+        RETURNS: A string with the sign - . Which length depends on how long the inputted string is
+        EXAMPLES: dividingLine "  | X |  "  = "---------"
+                  dividingLine " " = "-"
 
     -}
-    horizontalRow :: String -> String
-    horizontalRow string = concat $ replicate (length string) "-"
+    dividingLine :: String -> String
+    dividingLine string = concat $ replicate (length string) "-"
 
     {- printBoard board
-        Prints the board with a verticalrow with the slots and the horizontalrow that devides the verticalrows.
-        RETURNS: Rows with slots and a divider between the verticalrows.
+        Prints the board, containing the horizontal rows combined with the dividing lines
         SIDE EFFECTS: Prints the board
-        EXAMPLES: printBoard [[Empty,Full X,Empty],[Full O,Empty,Full O]] ==    | X |
+        EXAMPLES: printBoard [[Empty,Full X,Empty],[Full O,Empty,Full O]] =    | X |
                                                                              ---------
                                                                              O |   | O
                                                                              ---------
     -}
-
     printBoard :: Board -> IO ()
     printBoard board = for_ board $ \row -> do
-        putStrLn $ verticleRow row
-        putStrLn $ horizontalRow (verticleRow row)
+        putStrLn $ horizontalRow row
+        putStrLn $ dividingLine (horizontalRow row)
 
     {-startingPlayer
-        Randomly decides a player in the game.
+        Randomly decides a player 
         RETURNS: X or O at random
         SIDE EFFECTS: Updates the RNG seed
-        EXAMPLES: startingPlayer == O
-                  startingPlayer == X
+        EXAMPLES: startingPlayer = O
+                  startingPlayer = X
     -}
-    
     startingPlayer :: IO Player
     startingPlayer = do
         i <- startingPlayerAux
@@ -87,8 +83,8 @@ module TTT.Game where
         Randomly decides between 1 or 2 and stores it in an Int
         RETURNS: The stored Int
         SIDE EFFECTS: Updates the RNG seed
-        EXAMPLES: startingPlayerAux == 1
-                  startingPlayerAux == 2
+        EXAMPLES: startingPlayerAux = 1
+                  startingPlayerAux = 2
     -}
 
     startingPlayerAux :: IO Int
@@ -172,7 +168,6 @@ module TTT.Game where
             Nothing    -> do
                 putStrLn "Invalid input. Try the format (x,y) \n Where x is the vertical row number and y is the horizontal index"
                 readMove
-<<<<<<< HEAD
 
     {- pointValid board point
         Checks if a point is not negative, within the board and not empty
@@ -182,9 +177,6 @@ module TTT.Game where
                   pointValid [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (100,0) == False
     -}
 
-=======
-                
->>>>>>> 6bc115682e06ceb6af9197f219423d2e26ecdf63
     pointValid :: Board -> Point -> Bool
     pointValid board point = (fst point) >= 0 && (fst point) < (length board) && (snd point) >= 0 && (snd point) < (length (board !! 0)) && isEmpty board point
 
