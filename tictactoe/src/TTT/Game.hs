@@ -86,7 +86,6 @@ module TTT.Game where
         EXAMPLES: startingPlayerAux = 1
                   startingPlayerAux = 2
     -}
-
     startingPlayerAux :: IO Int
     startingPlayerAux = do 
         a <- randomRIO (1,2)
