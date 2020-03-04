@@ -62,12 +62,43 @@ testCheckWin = TestLabel "checkWin" $ TestList
             test5 :: [Bool]
             test5 = [(TTT.Game.checkWin X (TTT.Game.makeMove (1,1) (TTT.Game.makeMove (1,2) (TTT.Game.makeMove (1,3) (TTT.Game.initialBoard (i,5)) TTT.Game.X) TTT.Game.X) TTT.Game.X) (i,5,3)) | i <- [4..10]]
 
+            test6 :: [Bool]
+            test6 = [(TTT.Game.checkWin X (TTT.Game.makeMove (1,1) (TTT.Game.makeMove (1,2) (TTT.Game.makeMove (1,3) (TTT.Game.initialBoard (i,5)) TTT.Game.X) TTT.Game.X) TTT.Game.X) (4,i,3)) | i <- [5..11]]
+
         [True, True, True, True, True, True, True] @=? test5
+        [True, True, True, True, True, True, True] @=? test6
+
+    ]
+
+testMakeMove :: Test
+testMakeMove = TestLabel "makeMove" $ TestList
+    [ TestLabel "Should return the correct board when presented with a given point" $ TestCase $ do
+        let
+            test1 :: Board
+            test1 = (TTT.Game.makeMove (1,1) (TTT.Game.initialBoard (5,6)) TTT.Game.X)
+
+        let
+            test2 :: Board
+            test2 = (TTT.Game.makeMove (1,2) (TTT.Game.initialBoard (3,3)) TTT.Game.O)
+
+        test1 @=? [[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty],[TTT.Game.Empty,(Full TTT.Game.X),TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty],[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty],[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty],[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty]]
+        test2 @=? [[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty],[TTT.Game.Empty,TTT.Game.Empty,(Full TTT.Game.O)],[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty]]
+    
+    , TestLabel "Length of the returned board and the lists inside it should be the same as for the board in the argument" $ TestCase $ do
+        let
+            test3 :: [Int]
+            test3 = [length (TTT.Game.makeMove (i,i) (TTT.Game.initialBoard (4,4)) TTT.Game.X) | i <- [0..3]]
+
+            --test4 :: [Int]
+            --test4 = [length (((TTT.Game.makeMove (1,1)) (TTT.Game.initialBoard (4,4)) TTT.Game.O) !! i) | i <- [0..3]]
+
+        test3 @=? replicate 4 (length (TTT.Game.initialBoard (4,4)))
+        --test4 @=? replicate 4 (length (TTT.Game.initialBoard (4,4)))
 
     ]
 
 testaa = TestCase (assertEqual "for TTT.Game.makeMove (1,2) [[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty],[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty],[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty]] TTT.Game.X," [[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty],[TTT.Game.Empty,TTT.Game.Empty,(Full X)],[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty]] (TTT.Game.makeMove (1,2) [[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty],[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty],[TTT.Game.Empty,TTT.Game.Empty,TTT.Game.Empty]] TTT.Game.X))
 
-tests = TestList [TestLabel "pointValid tests" testPointValid, TestLabel "checkWin tests" testCheckWin]
+tests = TestList [TestLabel "pointValid tests" testPointValid, TestLabel "checkWin tests" testCheckWin, TestLabel "makeMove tests" testMakeMove]
 
 runtests = runTestTT tests
