@@ -1,5 +1,5 @@
 import Test.HUnit
-import Tests
+import qualified Test
 
-main :: IO ()
-main = Tests.runtests
+main :: IO Counts
+main = Test.runtests

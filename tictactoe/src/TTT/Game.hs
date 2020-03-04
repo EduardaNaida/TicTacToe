@@ -172,7 +172,6 @@ module TTT.Game where
             Nothing    -> do
                 putStrLn "Invalid input. Try the format (x,y) \n Where x is the vertical row number and y is the horizontal index"
                 readMove
-<<<<<<< HEAD
 
     {- pointValid board point
         Checks if a point is not negative, within the board and not empty
@@ -182,9 +181,6 @@ module TTT.Game where
                   pointValid [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] (100,0) == False
     -}
 
-=======
-                
->>>>>>> 6bc115682e06ceb6af9197f219423d2e26ecdf63
     pointValid :: Board -> Point -> Bool
     pointValid board point = (fst point) >= 0 && (fst point) < (length board) && (snd point) >= 0 && (snd point) < (length (board !! 0)) && isEmpty board point
 
