@@ -8,19 +8,19 @@ module TTT.Game where
 
     {- The type Point represents the gameplan. The first Int corresponds to the vertical row,
        and the second Int is the horizontal row
-     -}
+    -}
     type Point = (Int, Int)
 
      {- The type Board takes a list of lists of the data type Slot 
-     -}
+    -}
     type Board = [[Slot]]
     
     {-The Slot data type represents an empty or full player in a slot
-   -}
+    -}
     data Slot = Empty | Full Player deriving(Eq)
 
     {-The Player data type represents the player, being either X or O
-   -}
+    -}
     data Player = X | O deriving(Eq)
 
     instance Show Slot where
@@ -249,19 +249,19 @@ module TTT.Game where
             putStrLn "It's a tie!"
     
     {-checkWin player board (m,n,k)
-    Checks if a given player has won the game
-    RETURNS: True or False
-    EXAMPLES: checkWin X [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] (3,3,3) = True
+        Checks if a given player has won the game
+        RETURNS: True or False
+        EXAMPLES: checkWin X [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] (3,3,3) = True
 
     -}
     checkWin :: Player -> Board -> (Int,Int,Int) -> Bool
     checkWin player board (m,n,k) = any (all (== (Full player))) $ winCases board (m,n,k)
 
     {-diagonal ((x:_):rows)
-    Returns the diagonal from the top left to bottom right of a board
-    RETURNS: A list conatining the top left to bottom right diagonal
-    VARIANT: (length rows)
-    EXAMPLES: diagonal [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] = [(Full X),(Full X),(Full X)]
+        Returns the diagonal from the top left to bottom right of a board
+        RETURNS: A list conatining the top left to bottom right diagonal
+        VARIANT: (length rows)
+        EXAMPLES: diagonal [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] = [(Full X),(Full X),(Full X)]
               diagonal [[Empty,Empty,(Full X)],[Empty,(Full X),Empty],[(Full X),Empty,Empty]] = [Empty,(Full X),Empty]
     -}
     diagonal :: [[a]] -> [a]
@@ -269,18 +269,18 @@ module TTT.Game where
     diagonal ((x:_):rows) = x : diagonal (map tail rows)
 
     {-diags board
-    Returns all left-to-right diagnoals of a board
-    RETURNS: A list of all left-to-right diagonals
-    EXAMPLES: diags [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] = [[(Full X),(Full X),(Full X)],[Empty,Empty],[Empty],[Empty,Empty],[Empty]]
+        Returns all left-to-right diagnoals of a board
+        RETURNS: A list of all left-to-right diagonals
+        EXAMPLES: diags [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] = [[(Full X),(Full X),(Full X)],[Empty,Empty],[Empty],[Empty,Empty],[Empty]]
 
     -}
     diags :: [[a]] -> [[a]]
     diags board = map diagonal (init . tails $ board) ++ tail (map diagonal (init . tails $ transpose board))
 
     {-winCases board (m,n,k)
-    Returns all possible sequences of slots in a row that are of length k
-    RETURNS: A list of all the rows, columns and diagonals on the board that have the length k
-    EXAMPLES: winCases [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] (3,3,3) = [[Empty,Empty,(Full X)],[Empty,(Full X),Empty],[(Full X),Empty,Empty],[Empty,Empty,(Full X)],[Empty,(Full X),Empty],[(Full X),Empty,Empty],[(Full X),(Full X),(Full X)],[Empty,(Full X),Empty]]
+        Returns all possible sequences of slots in a row that are of length k
+        RETURNS: A list of all the rows, columns and diagonals on the board that have the length k
+        EXAMPLES: winCases [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] (3,3,3) = [[Empty,Empty,(Full X)],[Empty,(Full X),Empty],[(Full X),Empty,Empty],[Empty,Empty,(Full X)],[Empty,(Full X),Empty],[(Full X),Empty,Empty],[(Full X),(Full X),(Full X)],[Empty,(Full X),Empty]]
     -}
     winCases :: Board -> (Int,Int,Int) -> [[Slot]]
     winCases board (m,n,k) =
@@ -291,9 +291,9 @@ module TTT.Game where
             allDiags = concatMap inRow $ diags board ++ diags (map reverse board)
 
     {-inRow diag
-    Returns all possible ways a row, column or diagonal can contain a sequence of elements.
-    RETURNS: A list of lists that contains all possible ways the argument list's elements can be in a row
-    EXAMPLES: inRow [Empty,(Full X),(Full X),(Full X)] = [[(Full X),(Full X),(Full X),Empty],[(Full X),(Full X),Empty],[(Full X),Empty],[Empty],[],[(Full X),(Full X),(Full X)],[(Full X),(Full X)],[(Full X)],[],[(Full X),(Full X)],[(Full X)],[],[(Full X)],[],[]]
+        Returns all possible ways a row, column or diagonal can contain a sequence of elements.
+        RETURNS: A list of lists that contains all possible ways the argument list's elements can be in a row
+        EXAMPLES: inRow [Empty,(Full X),(Full X),(Full X)] = [[(Full X),(Full X),(Full X),Empty],[(Full X),(Full X),Empty],[(Full X),Empty],[Empty],[],[(Full X),(Full X),(Full X)],[(Full X),(Full X)],[(Full X)],[],[(Full X),(Full X)],[(Full X)],[],[(Full X)],[],[]]
     -}
     inRow :: [a] -> [[a]]
     inRow list = concatMap tails (map reverse(tails list))
