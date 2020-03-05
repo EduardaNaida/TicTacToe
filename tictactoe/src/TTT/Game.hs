@@ -187,7 +187,7 @@ module TTT.Game where
         return (int - 1)
     
     {- readInt
-        Reads an input and prints it out if 
+        Reads an input and prints it out if it is an int larger than 1
         RETURNS: The input Int
         SIDE EFFECTS: Reads one or more lines from standard input and prints strings
     -}
@@ -203,6 +203,12 @@ module TTT.Game where
                 putStrLn "Invalid input. Enter one number at a time"
                 readInt
 
+    {-readIntK m n
+    Reads an input and returns it if it is an int and larger than aswell as smaller than either m or n
+    RETURNS: The input int
+    SIDE EFFECTS: Reads one or more lines from standard input and prints strings
+    -}
+    
     readIntK :: Int -> Int -> IO Int
     readIntK m n = do
         str <- getLine
