@@ -208,7 +208,6 @@ module TTT.Game where
     RETURNS: The input int
     SIDE EFFECTS: Reads one or more lines from standard input and prints strings
     -}
-    
     readIntK :: Int -> Int -> IO Int
     readIntK m n = do
         str <- getLine
