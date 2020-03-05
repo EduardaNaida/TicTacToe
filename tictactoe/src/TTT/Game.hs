@@ -203,6 +203,18 @@ module TTT.Game where
                 putStrLn "Invalid input. Enter one number at a time"
                 readInt
 
+    readIntK :: Int -> Int -> IO Int
+    readIntK m n = do
+        str <- getLine
+        case readMaybe str of
+            Just int -> if (int <= m || int <= n) && int > 1 then return int else
+                do
+                    putStrLn "Value must be larger than 1 and smaller than either the amount of rows or columns."
+                    readInt
+            Nothing    -> do
+                putStrLn "Invalid input. Enter one number at a time"
+                readInt
+
     {- runGame
         Runs the game
         SIDE EFFECTS: The game, updates RNG seed
@@ -216,7 +228,7 @@ module TTT.Game where
         putStrLn $ "How many columns do you want?"
         n <- readInt
         putStrLn $ "How many slots in a row should be required to win?"
-        k <- readInt
+        k <- readIntK m n
         let count = m * n
         putStrLn "\n\n\n\n\n\n\nHow to play: when it is your turn, enter a coordinate (m,n) where m is the vertical position and n is the horizontal position\n\n"
         gameLoop count player (initialBoard (m,n)) (m,n,k)
