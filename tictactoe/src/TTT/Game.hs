@@ -195,9 +195,9 @@ module TTT.Game where
     readInt = do
         str <- getLine
         case readMaybe str of
-            Just int -> if int > 2 then return int else
+            Just int -> if int > 1 then return int else
                 do
-                    putStrLn "Value must be larger than 2"
+                    putStrLn "Value must be larger than 1"
                     readInt
             Nothing    -> do
                 putStrLn "Invalid input. Enter one number at a time"
