@@ -257,8 +257,10 @@ module TTT.Game where
     checkWin :: Player -> Board -> (Int,Int,Int) -> Bool
     checkWin player board (m,n,k) = any (all (== (Full player))) $ winCases board (m,n,k)
 
-    {-diagonal board
+    {-diagonal ((x:_):rows)
     Returns the diagonal from the top left to bottom right of a board
+    RETURNS: A list conatining the top left to bottom right diagonal
+    VARIANT: (length rows)
     EXAMPLES: diagonal [[(Full X),Empty,Empty],[Empty,(Full X),Empty],[Empty,Empty,(Full X)]] = [(Full X),(Full X),(Full X)]
               diagonal [[Empty,Empty,(Full X)],[Empty,(Full X),Empty],[(Full X),Empty,Empty]] = [Empty,(Full X),Empty]
     -}
